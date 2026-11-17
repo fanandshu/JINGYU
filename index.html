@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>晶屿香疗</title>
+    <link rel="icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" crossorigin href="assets/app.css" />
+    <script type="module" crossorigin src="assets/app.js"></script>
+    <style>
+      /* 平台若在服务端重新注入品牌角标，首帧即隐藏，避免先闪一下再被移除 */
+      #meoo-brand-watermark,
+      [id*="meoo-watermark"],
+      [data-meoo-watermark] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-od-id="app-root"></div>
+    <noscript>请开启 JavaScript 以浏览晶屿香疗。</noscript>
+    <script>
+      // 清除托管平台注入的品牌悬浮角标及其安全脚本
+      (() => {
+        const SELECTOR =
+          '#meoo-brand-watermark, [id*="meoo-watermark"], [data-meoo-watermark], #meoo-baxia-web-security';
+        const purge = (scope) => {
+          if (!scope || scope.nodeType !== 1) return;
+          if (scope.matches(SELECTOR)) {
+            scope.remove();
+            return;
+          }
+          scope.querySelectorAll(SELECTOR).forEach((node) => node.remove());
+        };
+        purge(document.documentElement);
+        const observer = new MutationObserver((records) => {
+          records.forEach((record) => {
+            record.addedNodes.forEach((node) => purge(node));
+          });
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        addEventListener(
+          'load',
+          () => {
+            purge(document.documentElement);
+            setTimeout(() => observer.disconnect(), 3000);
+          },
+          { once: true }
+        );
+      })();
+    </script>
+  </body>
+</html>
